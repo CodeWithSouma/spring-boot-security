@@ -12,6 +12,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
+import static com.codewithsouma.springbootsecurity.security.ApplicationUserRole.ADMIN;
+import static com.codewithsouma.springbootsecurity.security.ApplicationUserRole.STUDENT;
+
 @Configuration
 @EnableWebSecurity
 @AllArgsConstructor
@@ -22,8 +25,8 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/","index","/css/*","/js/*")
-                .permitAll()
+                .antMatchers("/","index","/css/*","/js/*").permitAll()
+                .antMatchers("/api/**").hasRole(STUDENT.name())
                 .anyRequest()
                 .authenticated()
                 .and()
@@ -33,11 +36,18 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     @Bean
     protected UserDetailsService userDetailsService() {
-        UserDetails soumadipDeyUser = User.builder()
-                .username("Soumadip Dey")
+        UserDetails soumaUser = User.builder()
+                .username("Souma")
                 .password(passwordEncoder.encode("Soumadip@1"))
-                .roles("STUDENT") // ROLE_STUDENT
+                .roles(STUDENT.name()) // ROLE_STUDENT
                 .build();
-        return new InMemoryUserDetailsManager(soumadipDeyUser);
+
+        UserDetails soumikUser = User.builder()
+                .username("Soumik")
+                .password(passwordEncoder.encode("Soumik"))
+                .roles(ADMIN.name())
+                .build();
+
+        return new InMemoryUserDetailsManager(soumaUser,soumikUser);
     }
 }
